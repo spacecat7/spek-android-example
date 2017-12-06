@@ -11,4 +11,6 @@ object CalculatorSpec : Spek({
     it("should be 4") {
         assertThat(calculator.add(2, 2), equalTo(4))
     }
+
+
 })
