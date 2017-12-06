@@ -60,16 +60,16 @@ private fun Call<*>.registerOnCompletion(continuation: CancellableContinuation<*
 }
 
 sealed class Result<out T : Any> {
-    class Successful<out T : Any>(val response: T) : Result<T>() {
+    data class Successful<out T : Any>(val response: T) : Result<T>() {
         override fun toString() = "Result.Ok{value=$response}"
     }
 
-    class Error(val apiError: String) : Result<Nothing>() {
+    data class Error(val apiError: String) : Result<Nothing>() {
         override fun toString() = "Result.Error{exception=$apiError}"
     }
 }
 
-inline fun <T : Any, R: Any> Result<T>.map(transform: (T) -> R): Result<R> {
+fun <T : Any, R: Any> Result<T>.map(transform: (T) -> R): Result<R> {
     return when(this) {
         is Result.Successful -> Result.Successful(transform(response))
         is Result.Error -> this

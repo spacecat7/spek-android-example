@@ -1,5 +1,6 @@
 package org.spekframework.speksample
 
+import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.staticMockk
@@ -19,21 +20,21 @@ object RepositoryTest : Spek({
     val apiClient: ApiClient = mockk()
     val call: Call<UserDto> = mockk()
     val userDto: UserDto = mockk()
-    val resultDto: Result<UserDto> = mockk()
 
     val repository: Repository = Repository(apiClient)
     val expectedResult = User("name")
 
-    on("login"){
+    on("login") {
 
         it("should return user object") {
 
-            staticMockk("org.spekframework.speksample.ApiClientKt").use {
+            staticMockk("org.spekframework.speksample.ApiClientKt",
+                    "org.spekframework.speksample.RepositoryKt").use {
+
                 every { apiClient.getUser(any()) } returns call
-                every {
-                    runBlocking {
-                        call.awaitResult()
-                    }
+
+                coEvery {
+                    call.awaitResult()
                 } returns Result.Successful(UserDto("name"))
 
                 every {
@@ -41,7 +42,8 @@ object RepositoryTest : Spek({
                 } returns User("name")
 
                 every {
-                    resultDto.map { it.toDomain() }
+                    Result.Successful(UserDto("name"))
+                            .map(invoke<(UserDto) -> User, User, UserDto>(userDto))
                 } returns Result.Successful(User("name"))
 
                 runBlocking {
